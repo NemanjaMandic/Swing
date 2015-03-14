@@ -4,6 +4,10 @@ package gui;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
@@ -16,9 +20,10 @@ public class ProgressDialog extends JDialog{
     
     private JButton cancelButton;
     private JProgressBar progressbar;
+    private ProgresDialogListener listener;
     
-    public ProgressDialog(Window parent){
-        super(parent, "Messages Downloading...", ModalityType.APPLICATION_MODAL);
+    public ProgressDialog(Window parent, String title){
+        super(parent, title, ModalityType.APPLICATION_MODAL);
         cancelButton = new JButton("Cancel");
         progressbar = new JProgressBar();
         progressbar.setStringPainted(true);
@@ -35,9 +40,33 @@ public class ProgressDialog extends JDialog{
         size.width=400;
         progressbar.setPreferredSize(size);
         
+        cancelButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+             if(listener != null){
+                 listener.progressDialogCancelled();
+             }
+            }
+        });
         pack();
         
+        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        
+        addWindowListener(new WindowAdapter() {
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if(listener != null){
+                 listener.progressDialogCancelled();
+             }
+            }
+            
+});
         setLocationRelativeTo(parent);
+    }
+    public void setListener(ProgresDialogListener listener){
+        this.listener = listener;
     }
     public void setMaximum(int value){
         progressbar.setMaximum(value);
